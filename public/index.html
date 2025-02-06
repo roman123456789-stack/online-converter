@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="wrapper-form">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <button class="attach" onclick="document.getElementById('hidden').click(); return false;">
+                    Прикрепить файл
+                </button>
+                <input id="hidden" class="hidden" name="video"type="file" accept=".mov">
+                <button class="send" type="button" onclick="uploadFile()">Конвертировать</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    function uploadFile() {
+    // Получаем форму и файл
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("hidden");
+
+    // Проверяем, выбран ли файл
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Пожалуйста, выберите файл!");
+        return;
+    }
+    alert("Файл выбран и отправлен на сервер");
+    console.log(fileInput.files[0]);
+    // Создаем объект FormData
+    const formData = new FormData();
+    formData.append("video", fileInput.files[0]); // Добавляем файл в FormData
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+    // Отправляем запрос на сервер
+    fetch("/upload", {
+        method: "POST",
+        body: formData, // Передаем FormData
+    })
+        .then((response) => response.json()) // Обрабатываем ответ сервера
+        .then((data) => {
+            if (data.downloadUrl) {
+                alert("Файл успешно загружен!");
+                form.innerHTML = `
+                    <a href="${data.downloadUrl}">
+                        <button class="download" type="button">Скачать</button>
+                    </a>
+                `;
+            } else {
+                alert("Произошла ошибка: " + data.error);
+            }
+        })
+        .catch((error) => {
+            console.error("Ошибка при отправке файла:", error);
+            alert("Не удалось отправить файл. Попробуйте позже.");
+        });
+}
+</script>

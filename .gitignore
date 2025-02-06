@@ -1,0 +1,5 @@
+# Исключаем node_modules
+node_modules/
+
+# Исключаем временные директории
+uploads/
